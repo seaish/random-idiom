@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random idiom</title>
+    <style>
+        :root {
+            --button-color: #111;
+            --bg: #eee;
+            --button-bg: #0000;
+            --hover-bg: #fff2;
+            --transition: background-color 0.2s ease-out, color 0.2s ease-out;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --button-color: #ccc;
+                --bg: #222;
+                --button-bg: #fff0;
+                --hover-bg: #0002;
+            }
+        }
+
+        .pink {
+            --button-color: #9b2661;
+            --bg: #f2cde0;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .pink {
+                --button-color: #ddaaca;
+                --bg: #381e2e;
+            }
+        }
+
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: Arial;
+            background-color: var(--bg);
+            transition: var(--transition);
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        #idiomButton {
+            font-size: 40px;
+            color: var(--button-color);
+            background-color: var(--button-bg);
+            border: 4px solid var(--button-color);
+            border-radius: 10px;
+            padding: 18px 32px 20px;
+            transition: background-color 0.2s ease-out;
+        }
+
+        #idiomButton:hover {
+            background-color: var(--hover-bg);
+        }
+
+        .themes {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+        }
+
+        .themes>button {
+            background: none;
+            border: none;
+            font-size: 20px;
+        }
+    </style>
+    <script>
+        var idioms
+
+        function randomIdiom() {
+            return idioms[Math.floor(Math.random() * idioms.length)];
+        }
+
+        function render() {
+            document.getElementById("idiomButton").innerText = randomIdiom();
+        }
+
+        function pink() {
+            let p = window.localStorage.getItem("pink")
+            if (p === "true") {
+                window.localStorage.setItem("pink", "false")
+                document.body.classList.remove("pink")
+            } else {
+                window.localStorage.setItem("pink", "true")
+                document.body.classList.add("pink")
+            }
+        }
+
+        async function load() {
+            let p = window.localStorage.getItem("pink")
+            if (p === "true") {
+                document.body.classList.add("pink")
+            }
+            const json = await fetch("./idioms.json", {
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            })
+            if (json.ok) {
+                idioms = await json.json()
+            } else {
+                console.log(json)
+                throw "idioms could not be loaded"
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", load)
+
+        function checkStorage(event) {
+            if (event.key === "pink") {
+                if (event.newValue === "true") {
+                    document.body.classList.add("pink")
+                } else {
+                    document.body.classList.remove("pink")
+                }
+            }
+        }
+
+        window.addEventListener("storage", checkStorage)</script>
+</head>
+
+<body>
+    <div class="themes"><button id="pink" onclick="pink()">🌸</button></div>
+    <button id="idiomButton" onclick="render()">Click</button>
+</body>
+
+</html>
